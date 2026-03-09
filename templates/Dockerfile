@@ -1,24 +1,25 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
-# Instala as dependências necessárias de forma limpa
+# Instala as ferramentas de compilação para Linux
 RUN apt-get update && apt-get install -y \
     g++ \
     libboost-all-dev \
     build-essential \
-    libtcmalloc-minimal4 \
+    mailcap \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copia os arquivos
+# Copia seus arquivos do Windows para o servidor Linux
 COPY . .
 
-# Comando de compilação corrigido para Linux/Ubuntu
-RUN g++ back.cpp -o back.exe -pthread -lboost_system -lboost_filesystem
+# No Linux, não usamos .exe e a ordem das bibliotecas é rígida
+RUN g++ back.cpp -o jogo_exec -pthread -lboost_system -lboost_filesystem
 
-# Garante que o arquivo tenha permissão de execução
-RUN chmod +x back.exe
+# Dá permissão para o servidor rodar o arquivo
+RUN chmod +x jogo_exec
 
 EXPOSE 18080
 
-CMD ["./back.exe"]
+# Comando para iniciar o servidor no Render
+CMD ["./jogo_exec"]
